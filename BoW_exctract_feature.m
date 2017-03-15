@@ -1,9 +1,34 @@
-function [ features ] = BoW_exctract_feature( image, type )
+function [ frames, descrip ] = BoW_exctract_feature( image, type )
+im = im2single(image);
+if(size(im,3)>1)
+    im = rgb2gray(im);
+end
 if(strcmp(type,'keyPoint'))
+    %http://www.vlfeat.org/matlab/vl_sift.html
+    %descriptor meaning: https://www.inf.fu-berlin.de/lehre/SS09/CV/uebungen/uebung09/SIFT.pdf
+    
+    [frames,descrip] = vl_sift(im);
+    %each column of frame is a feature frame of format [X;Y;S;TH], (x,y)
+    %center of frame, S scale, TH orientation in radian
+    %descrip= descriptor: 4 * 4 * 8 = 128, histogram of direction 
 elseif(strcmp(type,'dense'))
+    %http://www.vlfeat.org/matlab/vl_dsift.html
+    
+    %should we smooth the image ? it seems only usefull if we want to
+    %archieve the same result as vl_shift
+    
+    %calculate descriptors
+    [frames,descrip] = vl_dsift(im);
+    %frames is a 2 x num_keypoints matrix which reprensents the center(x,y) of the keypoint frame. 
+    %descrip is a 128 x num_keypoints matrix with 1 descriptor per
+    %column, same format as vl_sift
 elseif(strcmp(type,'rgb'))
+    [frames,descrip]= vl_phow(im2single(image), 'Color', 'rgb');
 elseif(strcmp(type,'normRGB'))
+    %TODO: normalize image 
+    [frames,descrip]= vl_phow(image, 'Color', 'rgb');
 elseif(strcmp(type,'opponent'))
+    [frames,descrip]= vl_phow(im2single(image), 'Color', 'opponent');
 end
 
 end
