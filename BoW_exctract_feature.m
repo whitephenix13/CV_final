@@ -23,10 +23,10 @@ elseif(strcmp(type,'dense'))
     %descrip is a 128 x num_keypoints matrix with 1 descriptor per
     %column, same format as vl_sift
 elseif(strcmp(type,'rgb'))
-    [frames,descrip]= vl_phow(im2single(image), 'Color', 'rgb');
-elseif(strcmp(type,'normRGB'))
-    %TODO: normalize image 
     [frames,descrip]= vl_phow(image, 'Color', 'rgb');
+elseif(strcmp(type,'normRGB'))
+    image_norm_rgb = im2single(rgb2normedrgb(image));
+    [frames,descrip]= vl_phow(image_norm_rgb, 'Color', 'rgb');
 elseif(strcmp(type,'opponent'))
     [frames,descrip]= vl_phow(im2single(image), 'Color', 'opponent');
 end

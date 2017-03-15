@@ -3,9 +3,7 @@ test='BoW'; % BoW CNN
 if(strcmp(test,'BoW'))
     im = imread('Caltech4\ImageData\airplanes_test\img001.jpg');
     %extract features 
-    [ frames, descrip ] = BoW_exctract_feature( im, 'rgb' );
-    size(im2single(im))
-    size(frames)
+    [ frames, descrip ] = BoW_exctract_feature( im, 'normRGB' );
     size(descrip)
     %build a visual vocabulary
     %quantisize feature using a visual vocabulary
