@@ -1,6 +1,6 @@
 function [ ap ] = averagePrecision( labels, desired_output )
     %ranked the labels 
-    [ranked,r_index]= sort(labels,'descending');
+    [ranked,r_index]= sort(labels,'descend');
     %rerank desired output: 
     rerank_desired = desired_output(r_index);
     

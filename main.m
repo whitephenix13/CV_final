@@ -24,11 +24,11 @@ if(strcmp(test,'BoW'))
     visual_freq = quantize_feature(visual_dic, d, vocab_size);
     
     %representing image by frequencies of visual words
-    % TODO : histogram gives strange values
-    %TODO: normalize histogram
+    %normalise hitstogram: 
+    visual_freq = visual_freq ./ (sum(visual_freq));
     disp('Show histogram of random image');
     figure
-    histogram(visual_freq)
+    bar(visual_freq)
     
     %classification
     for obj = 1:1 %4
@@ -66,6 +66,7 @@ if(strcmp(test,'BoW'))
     %TODO: for loop for all classifier? 
     obj = 1;
     disp(strcat('Test classifier ','1','/4'));
+    %TODO: shuffle X_test before ? if so be carefull with Y 
     X_test = zeros ([length(test_cls_names) vocab_size]);
     Y_test = zeros(length(test_cls_names),1);
     for i = 1: length(test_cls_names)
@@ -80,8 +81,8 @@ if(strcmp(test,'BoW'))
         end
     end
     label = predict(SVMModel_airp,X_test);
-    
     %compute Mean average precision
+    disp(averagePrecision(label,Y_test))
     disp('Compute MaP');
 elseif(strcmp(test,'CNN'))
     %define network architecture
