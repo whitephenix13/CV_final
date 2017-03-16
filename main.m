@@ -2,7 +2,7 @@
 test='BoW'; % BoW CNN
 if(strcmp(test,'BoW'))
     im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
-    vocab_size = 400;
+    vocab_size = 50;
     train_percentage = 0.02;
     sift_type = 'keyPoint';
     %
@@ -24,13 +24,14 @@ if(strcmp(test,'BoW'))
     visual_freq = quantize_feature(visual_dic, d, vocab_size);
     
     %representing image by frequencies of visual words
-    % TODO : not sure whether this is the right way to plot histogram
+    % TODO : histogram gives strange values
+    %TODO: normalize histogram
     disp('Show histogram of random image');
     figure
     histogram(visual_freq)
     
     %classification
-    for obj = 1:4
+    for obj = 1:1 %4
         disp(strcat('Create classifier of object ',num2str(obj),'/4'));
         % build X(histogram of visual word) and y(positive or negative) matrix to train an svm
         X = zeros ([length(train_cls_names) vocab_size]);
@@ -49,7 +50,7 @@ if(strcmp(test,'BoW'))
         end
         
         %training the model
-        if(obj == 1) 
+        if(obj == 1)
             SVMModel_airp = fitcsvm(X,y);
         elseif(obj==2)
             SVMModel_cars = fitcsvm(X,y);
@@ -62,15 +63,22 @@ if(strcmp(test,'BoW'))
     
     %testing:
     %build matrix for testing
+    %TODO: for loop for all classifier? 
+    obj = 1;
     disp(strcat('Test classifier ','1','/4'));
     X_test = zeros ([length(test_cls_names) vocab_size]);
+    Y_test = zeros(length(test_cls_names),1);
     for i = 1: length(test_cls_names)
         name = num2str(cell2mat(test_cls_names(i)));
         im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
         [f,d]= BoW_exctract_feature( im, sift_type );
         X_test(i,:) = quantize_feature(visual_dic, d, vocab_size);
+        if((obj-1) *nb_test_each_class < i && (i <= obj * nb_test_each_class))
+            Y_test(i) = 1;
+        else
+            Y_test(i) = 0;
+        end
     end
-    
     label = predict(SVMModel_airp,X_test);
     
     %compute Mean average precision
