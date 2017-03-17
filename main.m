@@ -14,9 +14,9 @@ save_labels= false;
 if(strcmp(test,'BoW'))
     im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
 
-    vocab_size = 100;
+    vocab_size = 50;
     train_percentage = 0.02;
-    sift_type = 'dense';
+    sift_type = 'keyPoint';
     %
     nb_train_each_class = 3;
     nb_test_each_class = 2;
@@ -120,14 +120,19 @@ if(strcmp(test,'BoW'))
                     Y_test(i,obj) = 0;
                 end
             end
+            %if lab = 1 ; -1  then score might be  -1.2 1.2 ; 0.9 -0.9
             if(obj == 1)
-                labels(:,obj) = predict(SVMModel_airp,X_test);
+                [lab,score] = predict(SVMModel_airp,X_test);
+                labels(:,obj) = score(:,2);
             elseif(obj==2)
-                labels(:,obj) = predict(SVMModel_cars,X_test);
+                [lab,score] = predict(SVMModel_cars,X_test);
+                labels(:,obj) = score(:,2);
             elseif(obj==3)
-                labels(:,obj) = predict(SVMModel_faces,X_test);
+                [lab,score] = predict(SVMModel_faces,X_test);
+                labels(:,obj) = score(:,2);
             elseif(obj==4)
-                labels(:,obj) = predict(SVMModel_motor,X_test);
+                [lab,score] = predict(SVMModel_motor,X_test);
+                labels(:,obj) = score(:,2);
             end
         end
        
@@ -142,6 +147,7 @@ if(strcmp(test,'BoW'))
         save(fname,'labels','Y_test');
     end
     %loop over all the labels to compute the average precision 
+    ap=0;
     for i = 1 : size(labels,1)
         %find the prediction for this image 
         lab_im = labels(i,:);
