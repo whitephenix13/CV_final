@@ -2,9 +2,9 @@
 test='BoW'; % BoW CNN
 %BOW variables
 %if a name is specified, load the corresponding dictionnary
-load_visual_dict='Caltech4\FeatureData\visual_dict_100_0.02_keyPoint.mat';%Caltech4\FeatureData\visual_dict_50_0.02_keyPoint.mat
-load_classifier='Caltech4\FeatureData\SVMModel_100_0.02_keyPoint.mat';%Caltech4\FeatureData\SVMModel_50_0.02_keyPoint.mat
-load_labels='Caltech4\FeatureData\labels_100_0.02_keyPoint.mat';%Caltech4\FeatureData\labels_50_0.02_keyPoint.mat
+load_visual_dict='';%Caltech4\FeatureData\visual_dict_50_0.02_keyPoint.mat
+load_classifier='';%Caltech4\FeatureData\SVMModel_50_0.02_keyPoint.mat
+load_labels='';%Caltech4\FeatureData\labels_50_0.02_keyPoint.mat
 
 save_visual_dict = false;
 save_classifier=false;
@@ -22,9 +22,10 @@ if(strcmp(test,'BoW'))
     nb_test_each_class = 2;
     
     %build a visual vocabulary
-    disp('Build visual dictionnary');
     if(strcmp(load_visual_dict,''))
+         disp('Preprocess data');
         [train_descriptor_names, train_cls_names, test_cls_names] = preprocess_data(train_percentage, nb_train_each_class, nb_test_each_class);
+         disp('Build visual dictionnary');
         [visual_dic] = build_visual_vocab( train_descriptor_names, vocab_size, sift_type);
     else
         vars = load(load_visual_dict);

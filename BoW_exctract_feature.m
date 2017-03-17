@@ -18,17 +18,21 @@ elseif(strcmp(type,'dense'))
     %archieve the same result as vl_shift
     
     %calculate descriptors
-    [frames,descrip] = vl_dsift(im);
+    bin_size =85;%12
+    [frames,descrip] = vl_dsift(im,'size',bin_size);
     %frames is a 2 x num_keypoints matrix which reprensents the center(x,y) of the keypoint frame. 
     %descrip is a 128 x num_keypoints matrix with 1 descriptor per
     %column, same format as vl_sift
 elseif(strcmp(type,'rgb'))
-    [frames,descrip]= vl_phow(image, 'Color', 'rgb');
+    bin_size =85;
+    [frames,descrip]= vl_phow(image, 'Color', 'rgb','size',bin_size);
 elseif(strcmp(type,'normRGB'))
+    bin_size =85;
     image_norm_rgb = im2single(rgb2normedrgb(image));
-    [frames,descrip]= vl_phow(image_norm_rgb, 'Color', 'rgb');
+    [frames,descrip]= vl_phow(image_norm_rgb, 'Color', 'rgb','size',bin_size);
 elseif(strcmp(type,'opponent'))
-    [frames,descrip]= vl_phow(im2single(image), 'Color', 'opponent');
+    bin_size =85;
+    [frames,descrip]= vl_phow(im2single(image), 'Color', 'opponent','size',bin_size);
 end
 
 end
