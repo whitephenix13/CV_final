@@ -2,7 +2,8 @@
 test='BoW'; % BoW CNN
 %BOW variables
 %if a name is specified, load the corresponding dictionnary
-load_visual_dict='Caltech4\FeatureData\visual_dict_50_0.02_keyPoint.mat';
+%load_visual_dict='Caltech4/FeatureData/visual_dict_50_0.02_keyPoint.mat';
+load_visual_dict='';
 load_classifier='';
 load_labels='';
 
@@ -13,9 +14,9 @@ save_labels= false;
 %...
 if(strcmp(test,'BoW'))
     im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
-    vocab_size = 50;
+    vocab_size = 200;
     train_percentage = 0.02;
-    sift_type = 'keyPoint';
+    sift_type = 'dense';
     %
     nb_train_each_class = 3;
     nb_test_each_class = 2;
@@ -45,6 +46,8 @@ if(strcmp(test,'BoW'))
     im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
     [f,d]= BoW_exctract_feature(im, sift_type);
     visual_freq = quantize_feature(visual_dic, d, vocab_size);
+    size(d)
+    size(visual_freq)
     
     %representing image by frequencies of visual words
     %normalise hitstogram:
@@ -99,7 +102,7 @@ if(strcmp(test,'BoW'))
             if((obj-1) *nb_test_each_class < i && (i <= obj * nb_test_each_class))
                 Y_test(i) = 1;
             else
-                Y_test(i) = 0;
+                Y_test(i) = -1;
             end
         end
         if(obj == 1)
