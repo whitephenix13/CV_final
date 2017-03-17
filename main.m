@@ -2,24 +2,25 @@
 test='BoW'; % BoW CNN
 %BOW variables
 %if a name is specified, load the corresponding dictionnary
-load_visual_dict='';%Caltech4\FeatureData\visual_dict_50_0.02_keyPoint.mat
-load_classifier='';%Caltech4\FeatureData\SVMModel_50_0.02_keyPoint.mat
-load_labels='';%Caltech4\FeatureData\labels_50_0.02_keyPoint.mat
+load_visual_dict='';%Caltech4\FeatureData\visual_dict_400_0.5_keyPoint.mat
+load_classifier='';%Caltech4\FeatureData\SVMModel_400_0.5_keyPoint.mat
+load_labels='';%Caltech4\FeatureData\labels_400_0.5_keyPoint.mat
 
-save_visual_dict = false;
-save_classifier=false;
-save_labels= false;
+save_visual_dict = true;
+save_classifier=true;
+save_labels= true;
 %CNN variables
 %...
 if(strcmp(test,'BoW'))
+    tic;
     im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
 
-    vocab_size = 50;
-    train_percentage = 0.02;
-    sift_type = 'keyPoint';
+    vocab_size = 800;%400, 800, 1600 2000 2400
+    train_percentage = 0.5;
+    sift_type = 'keyPoint';%keyPoint, dense, rgb, normRGB, opponent
     %
-    nb_train_each_class = 3;
-    nb_test_each_class = 2;
+    nb_train_each_class = 50;%50
+    nb_test_each_class = 50;%50
     
     %build a visual vocabulary
     if(strcmp(load_visual_dict,''))
@@ -39,6 +40,7 @@ if(strcmp(test,'BoW'))
             ,'_',num2str(sift_type),'.mat');
         save(fname,'train_descriptor_names','train_cls_names','test_cls_names','visual_dic');
     end
+    toc
     %quantisize feature using a visual vocabulary.
     %randomly picked an image just to quantize and show its histogram
     disp('Quantisize one random image to build histogram');
@@ -56,7 +58,7 @@ if(strcmp(test,'BoW'))
     disp('Show histogram of random image');
     figure
     bar(visual_freq)
-    
+    toc
     %classification
     if(strcmp(load_classifier,''))
         for obj = 1:4 %TODO:4
@@ -100,6 +102,7 @@ if(strcmp(test,'BoW'))
             ,'_',num2str(sift_type),'.mat');
         save(fname,'SVMModel_airp','SVMModel_cars','SVMModel_faces','SVMModel_motor');
     end
+    toc
     %testing:
     %build matrix for testing
     labels = zeros(length(test_cls_names),4);
@@ -155,6 +158,7 @@ if(strcmp(test,'BoW'))
         ap = ap +averagePrecision(lab_im,Y_im);
     end
     %compute Mean average precision
+    toc
     disp(strcat('MaP =_',num2str(ap/(size(labels,1)))));
 elseif(strcmp(test,'CNN'))
     %define network architecture
