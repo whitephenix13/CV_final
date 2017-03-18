@@ -6,7 +6,7 @@ im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
 clear name
 [frames,descript]= BoW_exctract_feature( im, sift_type );
 clear frames
-descriptors_concat = zeros(size(descript,1),10000000);
+descriptors_concat = zeros(size(descript,1),2500000);
 
 descriptors_concat(:,ind:(ind+size(descript,2)-1))=descript;
 ind= ind + size(size(descript,2));
