@@ -15,7 +15,7 @@ if(strcmp(test,'BoW'))
     tic;
     im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
 
-    vocab_size = 800;%400, 800, 1600 2000 2400
+    vocab_size = 2000;%400, 800, 1600 2000 4000
     train_percentage = 0.5;
     sift_type = 'keyPoint';%keyPoint, dense, rgb, normRGB, opponent
     %
