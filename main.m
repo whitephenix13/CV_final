@@ -6,9 +6,9 @@ load_visual_dict='';%Caltech4\FeatureData\visual_dict_400_0.5_keyPoint.mat
 load_classifier='';%Caltech4\FeatureData\SVMModel_400_0.5_keyPoint.mat
 load_labels='';%Caltech4\FeatureData\labels_400_0.5_keyPoint.mat
 
-save_visual_dict = false;
-save_classifier=false;
-save_labels= false;
+save_visual_dict = true;
+save_classifier=true;
+save_labels= true;
 %CNN variables
 %...
 if(strcmp(test,'BoW'))
@@ -17,9 +17,9 @@ if(strcmp(test,'BoW'))
     
     vocab_size = 400;%400, 800, 1600
     train_percentage = 0.5;%0.5
-    sift_type = 'normRGB';%keyPoint, dense, rgb, normRGB, opponent
+    sift_type = 'keyPoint';%keyPoint, dense, rgb, normRGB, opponent
     %
-    nb_train_each_class = 50;%50
+    nb_train_each_class = 200;%50 200 400
     nb_test_each_class = 50;%50
     
     %build a visual vocabulary
@@ -37,7 +37,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_visual_dict)
         fname = strcat('Caltech4\FeatureData\visual_dict_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'.mat');
+            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
         save(fname,'train_descriptor_names','train_cls_names','test_cls_names','visual_dic');
     end
     toc
@@ -109,7 +109,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_classifier)
         fname = strcat('Caltech4\FeatureData\SVMModel_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'.mat');
+            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
         save(fname,'SVMModel_airp','SVMModel_cars','SVMModel_faces','SVMModel_motor');
     end
     toc
@@ -164,7 +164,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_labels)
         fname = strcat('Caltech4\FeatureData\labels_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'.mat');
+            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
         save(fname,'labels','Y_test');
     end
     %loop over all the labels to compute the average precision
