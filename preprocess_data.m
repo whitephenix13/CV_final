@@ -31,7 +31,7 @@ for i=1:length(filenames)
 end
 
 % get test filenames
-filenames = dir(strcat(folder,'*_train.txt'));
+filenames = dir(strcat(folder,'*_test.txt'));
 test_cls_names={};
 for i=1:length(filenames)
     file=fopen(strcat(folder,filenames(i).name),'r');

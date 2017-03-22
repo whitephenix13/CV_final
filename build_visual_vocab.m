@@ -26,7 +26,7 @@ for  i= ind: length(train_names)
     clear name
     [frames,descript]= BoW_exctract_feature( im, sift_type );
     clear frames
-    if(descrip ~= -1)
+    if(descript ~= -1)
         descriptors_concat(:,ind:(ind+size(descript,2)-1))=descript;
         ind= ind + size(descript,2);
         clear descript;

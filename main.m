@@ -1,10 +1,10 @@
 %run('vlfeat-0.9.20/toolbox/vl_setup')
 test='BoW'; % BoW CNN
 %BOW variables
-%if a name is specified, load the corresponding dictionnary
-load_visual_dict='';%Caltech4\FeatureData\visual_dict_400_0.5_keyPoint.mat
-load_classifier='';%Caltech4\FeatureData\SVMModel_400_0.5_keyPoint.mat
-load_labels='';%Caltech4\FeatureData\labels_400_0.5_keyPoint.mat
+
+load_vis = false;
+load_cla = false;
+load_lab = false;
 
 save_visual_dict = true;
 save_classifier=true;
@@ -17,10 +17,29 @@ if(strcmp(test,'BoW'))
     
     vocab_size = 400;%400, 800, 1600
     train_percentage = 0.5;%0.5
-    sift_type = 'keyPoint';%keyPoint, dense, rgb, normRGB, opponent
-    %
-    nb_train_each_class = 200;%50 200 400
-    nb_test_each_class = 50;%50
+    color_type = 'rgb'; %intensity rgb, normRGB , opponent
+    type = 'keyPoint';%keyPoint dense 
+    nb_train_each_class = 50;%50 200 400
+    kernel_type = 'linear';
+
+    load_visual_dict='';%Caltech4\FeatureData\visual_dict_400_0.5_keyPoint.mat
+    load_classifier='';%Caltech4\FeatureData\SVMModel_400_0.5_keyPoint.mat
+    load_labels='';%Caltech4\FeatureData\labels_400_0.5_keyPoint.mat
+    if(load_vis)
+        load_visual_dict=strcat('Caltech4/FeatureData/visual_dict_',num2str(vocab_size),'_',num2str(train_percentage)...
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
+    end
+    if(load_cla)
+        load_visual_dict=strcat('Caltech4/FeatureData/SVMModel_',num2str(vocab_size),'_',num2str(train_percentage)...
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
+    end
+    if(load_lab)
+        load_visual_dict=strcat('Caltech4/FeatureData/labels_',num2str(vocab_size),'_',num2str(train_percentage)...
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
+    end
+    
+    sift_type= strcat(color_type,type);
+    nb_test_each_class = 50;
     
     %build a visual vocabulary
     if(strcmp(load_visual_dict,''))
@@ -37,7 +56,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_visual_dict)
         fname = strcat('Caltech4\FeatureData\visual_dict_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
         save(fname,'train_descriptor_names','train_cls_names','test_cls_names','visual_dic');
     end
     toc
@@ -88,16 +107,16 @@ if(strcmp(test,'BoW'))
                 end
             end
             X(ind:size(X,1),:)=[];
-            Y(ind:size(Y,1),:)=[];
+            y(ind:size(y,1),:)=[];
             %training the model
             if(obj == 1)
-                SVMModel_airp = fitcsvm(X,y);
+                SVMModel_airp = fitcsvm(X,y,'KernelFunction',kernel_type);
             elseif(obj==2)
-                SVMModel_cars = fitcsvm(X,y);
+                SVMModel_cars = fitcsvm(X,y,'KernelFunction',kernel_type);
             elseif(obj==3)
-                SVMModel_faces = fitcsvm(X,y);
+                SVMModel_faces = fitcsvm(X,y,'KernelFunction',kernel_type);
             elseif(obj==4)
-                SVMModel_motor = fitcsvm(X,y);
+                SVMModel_motor = fitcsvm(X,y,'KernelFunction',kernel_type);
             end
         end
     else
@@ -109,7 +128,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_classifier)
         fname = strcat('Caltech4\FeatureData\SVMModel_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
         save(fname,'SVMModel_airp','SVMModel_cars','SVMModel_faces','SVMModel_motor');
     end
     toc
@@ -164,7 +183,7 @@ if(strcmp(test,'BoW'))
     end
     if(save_labels)
         fname = strcat('Caltech4\FeatureData\labels_',num2str(vocab_size),'_',num2str(train_percentage)...
-            ,'_',num2str(sift_type),'_',nb_train_each_class,'.mat');
+            ,'_',num2str(sift_type),'_',num2str(nb_train_each_class),'_',kernel_type,'.mat');
         save(fname,'labels','Y_test');
     end
     %loop over all the labels to compute the average precision
