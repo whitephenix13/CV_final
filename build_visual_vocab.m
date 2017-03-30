@@ -1,12 +1,12 @@
 function [ visual_dic ] = build_visual_vocab( train_names, vocab_size, sift_type )
 
 ind = 1;
-descript = -1;
-while(descript==-1)
+ignore = true;
+while(ignore)
     name = num2str(cell2mat(train_names(ind)));
     im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
     clear name
-    [frames,descript]= BoW_exctract_feature( im, sift_type );
+    [ignore,frames,descript]= BoW_exctract_feature( im, sift_type );
     clear frames
     ind = ind +1;
 end
@@ -24,9 +24,9 @@ for  i= ind: length(train_names)
     name = num2str(cell2mat(train_names(i)));
     im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
     clear name
-    [frames,descript]= BoW_exctract_feature( im, sift_type );
+    [ignore,frames,descript]= BoW_exctract_feature( im, sift_type );
     clear frames
-    if(descript ~= -1)
+    if(~ignore)
         descriptors_concat(:,ind:(ind+size(descript,2)-1))=descript;
         ind= ind + size(descript,2);
         clear descript;

@@ -1,4 +1,5 @@
-function [ frames, descrip ] = BoW_exctract_feature( image, type )
+function [ ignore,frames, descrip ] = BoW_exctract_feature( image, type )
+ignore = false;
 im = im2single(image);
 if(size(im,3)>1)
     im = rgb2gray(im);
@@ -28,6 +29,7 @@ elseif(strcmp(type,'rgbdense'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
         [frames,descrip]= vl_phow(single(image), 'Color', 'rgb','Sizes',bin_size);
     end
@@ -35,12 +37,13 @@ elseif(strcmp(type,'rgbkeyPoint'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
         %find keypoints
         [frames,descrip] = vl_sift(im);
         %for each color channel, by using the same frames, compute
         %descriptors separately
-        s_image = im2single(image);
+        s_image = single(image);
         descrip1 = vl_sift(s_image(:,:,1),'frames',frames);
         descrip2 = vl_sift(s_image(:,:,2),'frames',frames);
         descrip3 = vl_sift(s_image(:,:,3),'frames',frames);
@@ -52,19 +55,21 @@ elseif(strcmp(type,'normRGBdense'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
-        image_norm_rgb = im2single(rgb2normedrgb(image));
+        image_norm_rgb = single(rgb2normedrgb(image));
         [frames,descrip]= vl_phow(image_norm_rgb, 'Color', 'rgb','Sizes',bin_size);
     end
 elseif(strcmp(type,'normRGBkeyPoint'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
         %find keypoints
         [frames,descrip] = vl_sift(im);
         %convert image to new colorspace
-        image_norm_rgb = im2single(rgb2normedrgb(image));
+        image_norm_rgb = single(rgb2normedrgb(image));
         %for each color channel, by using the same frames, compute
         %descriptors separately
         descrip1 = vl_sift(image_norm_rgb(:,:,1),'frames',frames);
@@ -79,18 +84,20 @@ elseif(strcmp(type,'opponentdense'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
-        [frames,descrip]= vl_phow(im2single(image), 'Color', 'opponent','Sizes',bin_size);
+        [frames,descrip]= vl_phow(single(image), 'Color', 'opponent','Sizes',bin_size);
     end
 elseif(strcmp(type,'opponentkeyPoint'))
     if(size(image,3)<3)
         frames=-1;
         descrip = -1;
+        ignore=true;
     else
         %find keypoints
         [frames,descrip] = vl_sift(im);
         %convert image to new colorspace
-        image_opponent = im2single(rgb2opponent(image));
+        image_opponent = single(rgb2opponent(image));
         %for each color channel, by using the same frames, compute
         %descriptors separately
         descrip1 = vl_sift(image_opponent(:,:,1),'frames',frames);

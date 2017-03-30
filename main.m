@@ -2,23 +2,27 @@
 
 load_vis = true;
 load_cla = true;
-load_lab = false;
+load_lab = true;
 
 save_visual_dict = false;
 save_classifier=false;
-save_labels= true;
+save_labels= false;
 %CNN variables
 %...
 tic;
-im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
+%im = imread('Caltech4/ImageData/airplanes_test/img001.jpg');
 
 vocab_size = 400;%400, 800, 1600
 train_percentage = 0.5;%0.5
-color_type = 'rgb'; %intensity rgb, normRGB , opponent
+color_type = 'intensity'; %intensity rgb, normRGB , opponent
 type = 'dense';%keyPoint dense
 nb_train_each_class = 50;%50 200 400
-kernel_type = 'linear';
+kernel_type = 'linear';%linear rbf polynomial
 
+%fill if kernel_type is polynomial
+kernel_type_order =3;
+
+sift_type=strcat(color_type,type);
 load_visual_dict='';%Caltech4\FeatureData\visual_dict_400_0.5_keyPoint.mat
 load_classifier='';%Caltech4\FeatureData\SVMModel_400_0.5_keyPoint.mat
 load_labels='';%Caltech4\FeatureData\labels_400_0.5_keyPoint.mat
@@ -65,9 +69,9 @@ while(d==-1)
     perm = randperm(size(train_descriptor_names,1));
     name = num2str(cell2mat(train_descriptor_names(perm(1))));
     im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
-    [f,d]= BoW_exctract_feature(im, sift_type);
+    [ignore,f,d]= BoW_exctract_feature(im, sift_type);
 end
-if(d ~= -1)
+if(~ignore)
     visual_freq = quantize_feature(visual_dic, d, vocab_size);
     size(d)
     size(visual_freq)
@@ -82,7 +86,7 @@ end
 toc
 %classification
 if(strcmp(load_classifier,''))
-    for obj = 1:4 
+    for obj = 1:4
         disp(strcat('Create classifier of object ',num2str(obj),'/4'));
         % build X(histogram of visual word) and y(positive or negative) matrix to train an svm
         X = zeros ([length(train_cls_names) vocab_size]);
@@ -92,8 +96,8 @@ if(strcmp(load_classifier,''))
             name = num2str(cell2mat(train_cls_names(i)));
             disp(strcat('Get features for_ ',name,'_step_',num2str(i),'/',num2str(length(train_cls_names)) ));
             im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
-            [f,d]= BoW_exctract_feature( im, sift_type );
-            if(d~=-1)
+            [ignore,f,d]= BoW_exctract_feature( im, sift_type );
+            if(~ignore)
                 X(ind,:) = quantize_feature(visual_dic, d, vocab_size);
                 if((obj-1) *nb_train_each_class < i && (i <= obj * nb_train_each_class))
                     y(ind) = 1;
@@ -106,14 +110,19 @@ if(strcmp(load_classifier,''))
         X(ind:size(X,1),:)=[];
         y(ind:size(y,1),:)=[];
         %training the model
+        if(strcmp(kernel_type, 'polynomial'))
+            svm_res = fitcsvm(X,y,'KernelFunction',kernel_type,'PolynomialOrder',kernel_type_order);
+        else
+            svm_res = fitcsvm(X,y,'KernelFunction',kernel_type);
+        end
         if(obj == 1)
-            SVMModel_airp = fitcsvm(X,y,'KernelFunction',kernel_type);
+            SVMModel_airp = svm_res;
         elseif(obj==2)
-            SVMModel_cars = fitcsvm(X,y,'KernelFunction',kernel_type);
+            SVMModel_cars = svm_res;
         elseif(obj==3)
-            SVMModel_faces = fitcsvm(X,y,'KernelFunction',kernel_type);
+            SVMModel_faces = svm_res;
         elseif(obj==4)
-            SVMModel_motor = fitcsvm(X,y,'KernelFunction',kernel_type);
+            SVMModel_motor = svm_res;
         end
     end
 else
@@ -135,15 +144,15 @@ labels = zeros(length(test_cls_names),4);
 Y_test = zeros(length(test_cls_names),4);
 
 if(strcmp(load_labels,''))
-    for obj=1:4%TODO: 4
+    for obj=1:4
         disp(strcat('Test classifier ',num2str(obj),'/4'));
         X_test = zeros ([length(test_cls_names) vocab_size]);
         ind=1;
         for i = 1: length(test_cls_names)
             name = num2str(cell2mat(test_cls_names(i)));
             im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
-            [f,d]= BoW_exctract_feature( im, sift_type );
-            if(d~=-1)
+            [ignore,f,d]= BoW_exctract_feature( im, sift_type );
+            if(~ignore)
                 X_test(ind,:) = quantize_feature(visual_dic, d, vocab_size);
                 if((obj-1) *nb_test_each_class < i && (i <= obj * nb_test_each_class))
                     Y_test(ind,obj) = 1;
@@ -185,13 +194,55 @@ if(save_labels)
 end
 %loop over all the labels to compute the average precision
 ap_airp=averagePrecision(labels(:,1),Y_test(:,1));
-ap_cars=averagePrecision(labels(:,2),Y_test(:,2));
-ap_face=averagePrecision(labels(:,3),Y_test(:,3));
-ap_moto=averagePrecision(labels(:,4),Y_test(:,4));
 disp(strcat('AP for airplane: ',num2str(ap_airp)));
+
+ap_cars=averagePrecision(labels(:,2),Y_test(:,2));
 disp(strcat('AP for cars: ',num2str(ap_cars)));
+
+ap_face=averagePrecision(labels(:,3),Y_test(:,3));
 disp(strcat('AP for faces: ',num2str(ap_face)));
+
+ap_moto=averagePrecision(labels(:,4),Y_test(:,4));
 disp(strcat('AP for motorbikes: ',num2str(ap_moto)));
 %compute Mean average precision
 toc
 disp(strcat('MaP =_',num2str((ap_airp+ap_cars+ap_face+ap_moto)/4)));
+
+%Retrieve the test image ranked
+retrieve_ranking = true;
+if(retrieve_ranking)
+    %Do we consider Gray images in the testing?
+    testGray = true;
+    test__names=test_cls_names;
+    
+    if(~testGray)
+        test__names={};
+        for i = 1: length(test_cls_names)
+            name = num2str(cell2mat(test_cls_names(i)));
+            im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
+            if(size(im,3)==3)
+                test__names=[test__names;name];
+            end
+        end
+    end
+    
+    [ranked,r1_index]= sort(labels(:,1),'descend');
+    [ranked,r2_index]= sort(labels(:,2),'descend');
+    [ranked,r3_index]= sort(labels(:,3),'descend');
+    [ranked,r4_index]= sort(labels(:,4),'descend');
+    for j=1:length(test__names)
+        airp_name=test__names{r1_index(j)};
+        car_name=test__names{r2_index(j)};
+        face_name=test__names{r3_index(j)};
+        motor_name=test__names{r4_index(j)};
+        
+        html_line =strcat('<tr><td><img src="Caltech4/ImageData/', ...
+            airp_name,'.jpg" /></td><td><img src="Caltech4/ImageData/', ...
+            car_name, '.jpg" /></td><td><img src="Caltech4/ImageData/',...
+            face_name,'.jpg" /></td><td><img src="Caltech4/ImageData/',...
+            motor_name,'.jpg" /></td></tr>');
+        disp(html_line);
+    end
+end
+
+
