@@ -1,0 +1,35 @@
+=======================================
+DONE 
+----------------
+Vocab size 
+400 0.5 intensity keyPoint 50 linear 
+800 0.5 intensity keyPoint 50 linear 
+1600 0.5 intensity keyPoint 50 linear 
+----------------
+All 8 models
+400 0.5 intensity keyPoint 50 linear 
+400 0.5 intensity dense 50 linear 
+400 0.5 normRGB dense 50 linear 
+400 0.5 normRGB keyPoint 50 linear 
+400 0.5 opponent dense 50 linear 
+
+400 0.5 rgb dense 50 linear 
+400 0.5 rgb keyPoint 50 linear 
+----------------
+Training samples
+400 0.5 intensity keyPoint 50 linear 
+400 0.5 intensity keyPoint 100 linear 
+400 0.5 intensity keyPoint 200 linear 
+----------------
+kernel choice 
+400 0.5 intensity keyPoint 50 linear
+400 0.5 intensity keyPoint 50 rbf
+400 0.5 intensity keyPoint 50 polynomial
+
+=======================================
+
+Retrain all color model since descriptor ~ -1 was incorrect 
+Print the html command to add to the file to add the pictures 
+
+-norm rgb dense 
+-norm rgb key

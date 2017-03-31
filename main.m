@@ -2,11 +2,11 @@
 
 load_vis = true;
 load_cla = true;
-load_lab = true;
+load_lab = false;
 
 save_visual_dict = false;
 save_classifier=false;
-save_labels= false;
+save_labels= true;
 %CNN variables
 %...
 tic;
@@ -149,11 +149,14 @@ if(strcmp(load_labels,''))
         X_test = zeros ([length(test_cls_names) vocab_size]);
         ind=1;
         for i = 1: length(test_cls_names)
+           disp(strcat('test file_',num2str(i))); 
             name = num2str(cell2mat(test_cls_names(i)));
             im = imread(strcat('Caltech4/ImageData/',name,'.jpg'));
             [ignore,f,d]= BoW_exctract_feature( im, sift_type );
+            disp(strcat('Extract feature done')); 
             if(~ignore)
                 X_test(ind,:) = quantize_feature(visual_dic, d, vocab_size);
+                disp(strcat('Quantisize feature done')); 
                 if((obj-1) *nb_test_each_class < i && (i <= obj * nb_test_each_class))
                     Y_test(ind,obj) = 1;
                 else
